@@ -5,7 +5,9 @@ data Square = X | O | Empty deriving Eq
 
 readSquare :: String -> Square
 readSquare "X" = X
+readSquare "x" = X
 readSquare "O" = O
+readSquare "o" = O
 
 oppSquare :: Square -> Square
 oppSquare X = O
