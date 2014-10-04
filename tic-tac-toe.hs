@@ -72,9 +72,12 @@ turn s xs = do
     putStr "Enter the square you want to move to: "
     line <- getLine
     let foo = sequence $ map (\x -> readMaybe x :: Maybe Int) $ words line
-    let coor =  fmap (\[y,x] -> (x-1,y-1)) foo
-    let board = maybe (Left "That's not a square.") (flip (move s) xs) coor
+    let coor =  toCoor foo
+    let board = coor >>= flip (move s) xs
     either (\x -> putStrLn x >> turn s xs) (play (oppSquare s)) board
+    where toCoor Nothing        = Left "That's not a square."
+          toCoor (Just [y, x])  = Right (x-1, y-1)
+          toCoor _              = Left "In case you couldn't tell, this board is in two dimensions."
 
 play :: Square -> Board -> IO ()
 play s xs
