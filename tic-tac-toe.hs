@@ -3,6 +3,10 @@ import Text.Read (readMaybe)
 
 data Square = X | O | Empty deriving Eq
 
+readSquare :: String -> Square
+readSquare "X" = X
+readSquare "O" = O
+
 oppSquare :: Square -> Square
 oppSquare X = O
 oppSquare O = X
@@ -23,10 +27,10 @@ type Board = [Row]
 showBoard :: Board -> String
 showBoard xs =
     "    1   2   3\n" ++ 
-    "   ------------\n" ++ 
+    "  -------------\n" ++ 
     (concat $ break $ map (\n -> showRow n (xs !! (n-1))) [1..3]) ++ 
-    "\n   ------------"
-    where break = intersperse "\n   ------------\n"
+    "\n  -------------"
+    where break = intersperse "\n  -------------\n"
 
 -- Determines if a piece is the winner on a board.
 
@@ -81,10 +85,17 @@ turn s xs = do
 
 play :: Square -> Board -> IO ()
 play s xs
-    | win X xs  = putStrLn "X wins!"
-    | win O xs  = putStrLn "O wins!"
+    | win X xs  = (putStrLn $ showBoard xs) >> putStrLn "X wins!"
+    | win O xs  = (putStrLn $ showBoard xs) >> putStrLn "O wins!"
     | otherwise = do
         putStrLn $ "\n" ++ (show s) ++ "'s turn.\n"
         putStrLn (showBoard xs)
         turn s xs 
+
+main :: IO ()
+main = do
+    putStr "Which player will go first?: "
+    line <- getLine
+    let starter = readSquare $ filter (/=' ') line
+    play starter [[Empty, Empty, Empty], [Empty, Empty, Empty], [Empty, Empty, Empty]]
 
