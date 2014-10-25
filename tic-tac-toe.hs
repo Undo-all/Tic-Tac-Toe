@@ -1,4 +1,4 @@
-import Data.List (intersperse)
+import Data.List (intersperse, transpose, intercalate)
 import Text.Read (readMaybe)
 
 data Square = X | O | Empty deriving Eq
@@ -22,7 +22,7 @@ type Row = [Square]
 
 showRow :: Int -> Row -> String
 showRow n xs = 
-    (show n) ++ " | " ++ (concat $ intersperse " | " (map show xs)) ++ " |"
+    (show n) ++ " | " ++ (intercalate " | " (map show xs)) ++ " |"
 
 type Board = [Row]
 
@@ -41,8 +41,7 @@ horizontalWin s xs =
     any (\ys -> filter (==s) ys == ys) xs
 
 verticalWin :: Square -> Board -> Bool
-verticalWin s xs = horizontalWin s newBoard
-    where newBoard = map (\n -> foldl (\acc ys -> acc ++ [ys !! n]) [] xs) [0..2]
+verticalWin s xs = horizontalWin s (transpose xs)
 
 -- I brute-forced this one, it's more efficient
 diagonalWin :: Square -> Board -> Bool
@@ -54,6 +53,11 @@ win :: Square -> Board -> Bool
 win s xs = (horizontalWin s xs) || 
            (diagonalWin s xs)   || 
            (verticalWin s xs)
+
+-- Only meant to be called after
+-- it is tested if there's a win
+tie :: Board -> Bool
+tie xs = all (all (/= Empty)) xs
 
 -- Puts an X or an O on the board.
 -- If the space isn't empty, it 
@@ -89,6 +93,7 @@ play :: Square -> Board -> IO ()
 play s xs
     | win X xs  = (putStrLn $ showBoard xs) >> putStrLn "X wins!"
     | win O xs  = (putStrLn $ showBoard xs) >> putStrLn "O wins!"
+    | tie xs    = (putStrLn $ showBoard xs) >> putStrLn "Tie!"
     | otherwise = do
         putStrLn $ "\n" ++ (show s) ++ "'s turn.\n"
         putStrLn (showBoard xs)
